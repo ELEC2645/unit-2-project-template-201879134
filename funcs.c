@@ -5,26 +5,25 @@
 #include "funcs.h"
 
 char *get_input (void) {
-    int size = 16;                     // start small
+    int size = 16;                     // start with the ideal size 
     char *buffer = malloc(size);       // initial allocation
     int length = 0;
     int c;
 
     if (!buffer) {
-        printf("Memory allocation failed.\n");
+        printf("Error: memory allocation failed.\n");   //failsafe statement
         exit(1);
     }
 
     while ((c = getchar()) != '\n' && c != EOF) {
         buffer[length++] = c;
 
-        // grow buffer if needed
-        if (length >= size) {
+        if (length >= size) {                           //buffer can grow if needed
             size *= 2;
             char *new_buffer = realloc(buffer, size);
-            if (!new_buffer) {
+            if (!new_buffer) {                          //failsafe statement
                 free(buffer);
-                printf("Memory reallocation failed.\n");
+                printf("Error: memory reallocation failed.\n");
                 exit(1);
             }
             buffer = new_buffer;
@@ -40,7 +39,7 @@ void disassembler(void) {
     printf("Please enter a 16-digit binary number: ");
     char *input = get_input(); 
 
-    if (strlen(input) < 16){
+    if (strlen(input) < 16){                        //check the input is not too long or short
         printf("Error: not enough digits. Returning to main menu...\n");
         free(input);
         main_menu();
@@ -50,7 +49,7 @@ void disassembler(void) {
         main_menu();
     }
 
-    for (int i = 0; i < strlen(input); i++) {
+    for (int i = 0; i < strlen(input); i++) {               //check the input only includes 0s or 1s
         if (input[i] != '0' && input[i] != '1'){
             printf("Error: input includes digits other than 0 and 1. Returning to main menu...");
             free(input);
@@ -58,16 +57,16 @@ void disassembler(void) {
         }
     }   
 
-    Instruction disassembler = get_instr_disassembler(input);
+    Instruction disassembler = get_instr_disassembler(input);       //get the instruction type for the upcoming switch
 
     switch (disassembler) {
-        case A_INSTR: 
+        case A_INSTR:               //A-Instruction
             a_disassembler(input); 
             break; 
-        case C_INSTR: 
+        case C_INSTR:               //C-Instruction
             c_disassembler(input);
             break; 
-        case INVALID_INSTR:
+        case INVALID_INSTR:         //Invalid
             printf("Error: the first digit was not 0 or 1. Returning to main menu...\n");
             free(input);
             main_menu();
@@ -77,7 +76,7 @@ void disassembler(void) {
 }
 
 Instruction get_instr_disassembler (char input[]) {
-    if (input[0] == '0'){
+    if (input[0] == '0'){           
         return A_INSTR; 
     } else if (input[0] == '1'){
         return C_INSTR;
@@ -87,8 +86,9 @@ Instruction get_instr_disassembler (char input[]) {
 }
 
 void a_disassembler(char input[]) {
+
     int value = 0; 
-    for (int i = 0; i < 16; i++){
+    for (int i = 0; i < 16; i++){           //binary to decimal converter
         if (input[i] != '0'){
             value += pow(2,15-i);
         }
@@ -96,28 +96,31 @@ void a_disassembler(char input[]) {
     
     printf("Your instruction in machine language is: @%d\n", value);
 
-    char result[MAX_LEN];
-    sprintf(result, "@%d", value);
+    char result[MAX_LEN];               //save the result as a char instead of int for save_to_file
+    sprintf(result, "@%d", value);          
     save_to_file(result);
 }
 
 void c_disassembler(char input[]) {
 
+    /* assigning pointers to value each function returns */
     char *comp = comp_disassembler(input);
     char *dest = dest_disassembler(input);
     char *jump = jump_disassembler(input);
 
-    char machine_language[MAX_LEN];
-    sprintf(machine_language, "%s%s%s", dest, comp, jump);
+    char machine_language[MAX_LEN];                         //save all the values into one string for save_to_file
+    sprintf(machine_language, "%s%s%s", dest, comp, jump);  
 
     printf("Your instruction in machine language is: %s\n", machine_language);
     save_to_file(machine_language);
 }
 
 char *comp_disassembler(char input[]) { 
+
     int code = ((input[4] - '0') << 5) | ((input[5] - '0') << 4) | ((input[6] - '0') << 3) | ((input[7] - '0') << 2) | ((input[8] - '0') << 1) | (input[9] - '0');
     int mnemonic = input[3] - '0'; 
-    if (mnemonic == 0){
+
+    if (mnemonic == 0){                     //compare input[4..9] against these switch statements to return the correct machine code
         switch (code) {
             case 0b101010: return "0"; 
             case 0b111111: return "1"; 
@@ -157,8 +160,10 @@ char *comp_disassembler(char input[]) {
 }
 
 char *dest_disassembler(char input[]) {
+
     int code = ((input[10] - '0') << 2) | ((input[11] - '0') << 1) | (input[12] - '0');
-    switch (code) {
+
+    switch (code) {                     //compare input[10..12] to return the correct destination
         case 0b000: return ""; 
         case 0b001: return "M="; 
         case 0b010: return "D=";
@@ -172,8 +177,10 @@ char *dest_disassembler(char input[]) {
 }
 
 char *jump_disassembler(char input[]) {
+
     int code = ((input[13] - '0') << 2) | ((input[14] - '0') << 1) | (input[15] - '0');
-    switch (code) {
+
+    switch (code) {                     //compare input[13..15] to return the right jump functions
         case 0b000: return ""; 
         case 0b001: return ";JGT"; 
         case 0b010: return ";JEQ";
@@ -191,9 +198,9 @@ void assembler(void) {
     printf("\nPlease enter a machine code instruction: ");
     char *input = get_input();
 
-    Instruction assembler = get_instr_assembler(input);
+    Instruction assembler = get_instr_assembler(input);         //get the instruction type 
 
-    switch (assembler) {
+    switch (assembler) {            //check if it is a or c instruction or invalid
         case A_INSTR:
             a_assembler(input);
             break;
@@ -224,8 +231,8 @@ Instruction get_instr_assembler (char input[]) {
 void a_assembler (char input[]) {
 
     int value = 0; 
-    for (int i = 1; i < strlen(input); i++) {
-        if (input[i] != '0' && input[i] != '1' && input[i] != '2' && 
+    for (int i = 1; i < strlen(input); i++) {                    //take the value from the string and into an int for easier handling
+        if (input[i] != '0' && input[i] != '1' && input[i] != '2' &&        //check the input does not include anyhting non-numerical
             input[i] != '3' && input[i] != '4' && input[i] != '5' && 
             input[i] != '6'  && input[i] != '7' && input[i] != '8' && input[i] != '9'){
                 printf("Error: input includes non-numeric characters. Returning to main menu...\n");
@@ -236,15 +243,15 @@ void a_assembler (char input[]) {
 
     int reverse_binary[16] = {0}; 
     int i = 0;
-    while (value > 0) {
+    while (value > 0) {                     //binary to decimal converter
         reverse_binary[i] = value % 2; 
         value = value / 2; 
         i++;
     }
 
     char final_binary[17];
-    for (int j = 15; j >= 0; j--){
-        final_binary[15-j] = reverse_binary[j] ? '1' : '0'; 
+    for (int j = 15; j >= 0; j--){              //reverse the binary outpur for correct printing
+        final_binary[15-j] = reverse_binary[j] ? '1' : '0';         //pass it to a char for the save_to_file function
     }
     final_binary[16] = '\0';
 
@@ -254,12 +261,13 @@ void a_assembler (char input[]) {
 
 void c_assembler (char input[]) {
 
+    /* assign pointers to the values returned in these functions*/
     const char *dest = dest_assembler(input);
     CompBits comp = comp_assembler(input);
     const char *jump = jump_assembler(input);
 
     char binary[MAX_LEN];
-    sprintf(binary, "111%d%s%s%s", comp.mnemonic, comp.comp, dest, jump);
+    sprintf(binary, "111%d%s%s%s", comp.mnemonic, comp.comp, dest, jump);       //store in one char for easier use and for the save_to_file
 
     printf("Your instruction in binary is: %s\n", binary);
     save_to_file(binary);
@@ -270,16 +278,15 @@ const char *dest_assembler (char input[]) {
     char dest[4]; 
     int i = 0; 
 
-    if (strcmp(input, "=") != 0) return "000";
+    if (strcmp(input, "=") != 0) return "000";              //if there is no '=' there is no destination
 
-
-    while(input[i] != '=' && input[i] != '\0') {
+    while(input[i] != '=' && input[i] != '\0') {            //only read the input up to the '='
         dest[i] = input[i];
         i++;
     }
     dest[i] = '\0';
     
-    if (strcmp(dest, "M") == 0) return "001"; 
+    if (strcmp(dest, "M") == 0) return "001";           //find the destination and return the binary instruction
     if (strcmp(dest, "D") == 0) return "010";
     if (strcmp(dest, "DM") == 0) return "011";
     if (strcmp(dest, "A") == 0) return "100";
@@ -298,21 +305,21 @@ CompBits comp_assembler(char input[]) {
 
     char comp[4]; 
     int i = 0; 
-    if (strchr(input, '=') != NULL){
+    if (strchr(input, '=') != NULL){                        //if there is a '=' only read from one after this
         while (input[i] != '=' && input[i] != '\0') i++; 
         if (input[i] == '=') i++; 
     }
 
     int j = 0; 
-    while (input[i] != ';' && input[i] != '\0') {
+    while (input[i] != ';' && input[i] != '\0') {           //only read until ';'
         comp[j] = input[i];
-        if (input[i] == 'M') result.mnemonic = 1; 
+        if (input[i] == 'M') result.mnemonic = 1;           //if the input includes an 'M', the mnemonic is 1
         i++;
         j++; 
     }
     comp[j] = '\0'; 
     
-    if (result.mnemonic == 0) {
+    if (result.mnemonic == 0) {                            //find the computation and return the binary instruction with the mnemonic
         if (strcmp(comp, "0") == 0) {result.comp = "101010"; return result;} 
         if (strcmp(comp, "1") == 0) {result.comp = "111111"; return result;} 
         if (strcmp(comp, "-1") == 0) {result.comp = "111010"; return result;} 
@@ -332,8 +339,6 @@ CompBits comp_assembler(char input[]) {
         if (strcmp(comp, "D&A") == 0) {result.comp = "000000"; return result;} 
         
     } else {
-        printf("7");
-        printf("comp: %s", comp);
         if (strcmp(comp, "M") == 0) {result.comp = "110000"; return result;} 
         if (strcmp(comp, "!M") == 0) {result.comp = "110001"; return result;} 
         if (strcmp(comp, "-M") == 0) {result.comp = "110011"; return result;} 
