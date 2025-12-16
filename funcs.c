@@ -280,7 +280,7 @@ const char *dest_assembler (char input[]) {
 
     if (strcmp(input, "=") != 0) return "000";              //if there is no '=' there is no destination
 
-    while(input[i] != '=' && input[i] != '\0') {            //only read the input up to the '='
+    while(input[i] != '=' && input[i] != '\0') {            //assign the section of the input before '=' to dest
         dest[i] = input[i];
         i++;
     }
@@ -311,7 +311,7 @@ CompBits comp_assembler(char input[]) {
     }
 
     int j = 0; 
-    while (input[i] != ';' && input[i] != '\0') {           //only read until ';'
+    while (input[i] != ';' && input[i] != '\0') {           //assign the section of the input after '=' and until ';' to comp
         comp[j] = input[i];
         if (input[i] == 'M') result.mnemonic = 1;           //if the input includes an 'M', the mnemonic is 1
         i++;
@@ -359,19 +359,18 @@ const char *jump_assembler (char input[]) {
     char jump[4];
     int i = 0;
 
-    while (input[i] != ';' && input[i] != '\0') i++;
+    while (input[i] != ';' && input[i] != '\0') i++;            //read only after the ';'
     if (input[i] == ';') i++;
 
     int j = 0; 
-
-    while (input[i] != '\0') {
+    while (input[i] != '\0') {              //assign the section of the input after ';' to jump
         jump[j] = input[i];
         i++;
         j++; 
     }
     jump[j] = '\0'; 
 
-    if (strcmp(jump, "") == 0) return "000";
+    if (strcmp(jump, "") == 0) return "000";            //find the jump command and return its binary equivalent
     if (strcmp(jump, "JGT") == 0) return "001"; 
     if (strcmp(jump, "JEQ") == 0) return "010"; 
     if (strcmp(jump, "JGE") == 0) return "011"; 
@@ -389,7 +388,7 @@ void save_to_file (char result[]) {
 
     char choice; 
     scanf("%c", &choice);
-    getchar();
+    getchar();                      //remove the extra new line 
 
     if (choice == 'y' || choice == 'Y'){
 
@@ -397,15 +396,15 @@ void save_to_file (char result[]) {
 
         char filename[MAX_LEN];
         fgets(filename, MAX_LEN, stdin);
-        filename[strcspn(filename, "\n")] = '\0';
+        filename[strcspn(filename, "\n")] = '\0';       //remove the new line for a null terminator
 
-        FILE *f = fopen(filename, "w");
+        FILE *f = fopen(filename, "w");                 //open a file the users choice of name
         if (!f){
             printf("Error: unable to open file. Returning to main menu...\n");
             main_menu();
         }
 
-        fprintf(f, "%s", result);
+        fprintf(f, "%s", result);               //print the result to this file
         fclose(f);
     } else {
         printf("Result not saved.\n");
