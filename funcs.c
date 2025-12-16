@@ -270,13 +270,15 @@ const char *dest_assembler (char input[]) {
     char dest[4]; 
     int i = 0; 
 
+    if (strcmp(input, "=") != 0) return "000";
+
+
     while(input[i] != '=' && input[i] != '\0') {
         dest[i] = input[i];
         i++;
     }
     dest[i] = '\0';
     
-    if (strcmp(dest, "") == 0) return "000";
     if (strcmp(dest, "M") == 0) return "001"; 
     if (strcmp(dest, "D") == 0) return "010";
     if (strcmp(dest, "DM") == 0) return "011";
@@ -296,13 +298,12 @@ CompBits comp_assembler(char input[]) {
 
     char comp[4]; 
     int i = 0; 
-
-
-    while (input[i] != '=' && input[i] != '\0') i++; 
-    if (input[i] == '=') i++; 
+    if (strchr(input, '=') != NULL){
+        while (input[i] != '=' && input[i] != '\0') i++; 
+        if (input[i] == '=') i++; 
+    }
 
     int j = 0; 
-
     while (input[i] != ';' && input[i] != '\0') {
         comp[j] = input[i];
         if (input[i] == 'M') result.mnemonic = 1; 
@@ -331,6 +332,8 @@ CompBits comp_assembler(char input[]) {
         if (strcmp(comp, "D&A") == 0) {result.comp = "000000"; return result;} 
         
     } else {
+        printf("7");
+        printf("comp: %s", comp);
         if (strcmp(comp, "M") == 0) {result.comp = "110000"; return result;} 
         if (strcmp(comp, "!M") == 0) {result.comp = "110001"; return result;} 
         if (strcmp(comp, "-M") == 0) {result.comp = "110011"; return result;} 

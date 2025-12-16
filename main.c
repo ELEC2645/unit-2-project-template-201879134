@@ -78,7 +78,7 @@ static void select_menu_item(int input) {
             go_back_to_main();
             break;
         default:
-            printf("Bye!\n");
+            printf("Bye bye!\n");
             exit(0);
     }
 }
