@@ -35,7 +35,7 @@ char *get_input (void) {
 }
 
 void disassembler(void) {
-    printf("\n>> Disassembler\n");
+    printf("\n>> Disassembler\n\n");
     printf("Please enter a 16-digit binary number: ");
     char *input = get_input(); 
 
@@ -94,7 +94,7 @@ void a_disassembler(char input[]) {
         }
     }
     
-    printf("Your instruction in machine language is: @%d\n", value);
+    printf("\nYour instruction in machine language is: @%d\n\n", value);
 
     char result[MAX_LEN];               //save the result as a char instead of int for save_to_file
     sprintf(result, "@%d", value);          
@@ -111,7 +111,7 @@ void c_disassembler(char input[]) {
     char machine_language[MAX_LEN];                         //save all the values into one string for save_to_file
     sprintf(machine_language, "%s%s%s", dest, comp, jump);  
 
-    printf("Your instruction in machine language is: %s\n", machine_language);
+    printf("\nYour instruction in machine language is: %s\n\n", machine_language);
     save_to_file(machine_language);
 }
 
@@ -194,7 +194,7 @@ char *jump_disassembler(char input[]) {
 }
 
 void assembler(void) {
-    printf("\n>> Assembler\n");
+    printf("\n>> Assembler\n\n");
     printf("\nPlease enter a machine code instruction: ");
     char *input = get_input();
 
@@ -255,7 +255,7 @@ void a_assembler (char input[]) {
     }
     final_binary[16] = '\0';
 
-    printf("Your instruction in binary is: %s\n", final_binary);
+    printf("\nYour instruction in binary is: %s\n\n", final_binary);
     save_to_file(final_binary);
 }
 
@@ -270,7 +270,7 @@ void c_assembler (char input[]) {
     char binary[MAX_LEN];
     sprintf(binary, "111%d%s%s%s", comp.mnemonic, comp.comp, dest, jump);       //store in one char for easier use and for the save_to_file
 
-    printf("Your instruction in binary is: %s\n", binary);
+    printf("\nYour instruction in binary is: %s\n\n", binary);
     save_to_file(binary);
 }
 
