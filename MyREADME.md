@@ -1,7 +1,3 @@
-write some examples for the user to test if they don't know what to input 
-
-give them the tables
-
 ELEC2645 Unit 2 Project: Hack Computer Assembler and Disassembler by Esme Newman
 
 This program is a basic assembler and disassembler for the Hack computer. 
