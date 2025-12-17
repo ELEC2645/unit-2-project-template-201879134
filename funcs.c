@@ -40,20 +40,20 @@ void disassembler(void) {
     char *input = get_input(); 
 
     if (strlen(input) < 16){                        //check the input is not too long or short
-        printf("Error: not enough digits. Returning to main menu...\n");
+        printf("Error: not enough digits\n");
         free(input);
-        main_menu();
+        return; 
     } else if (strlen(input) > 16){
-        printf("Error: too many digits. Returning to main menu...\n");
+        printf("Error: too many digits\n");
         free(input);
-        main_menu();
+        return;
     }
 
     for (int i = 0; i < strlen(input); i++) {               //check the input only includes 0s or 1s
         if (input[i] != '0' && input[i] != '1'){
-            printf("Error: input includes digits other than 0 and 1. Returning to main menu...");
+            printf("Error: input includes characters other than 0 and 1\n");
             free(input);
-            main_menu();
+            return; 
         }
     }   
 
@@ -67,9 +67,9 @@ void disassembler(void) {
             c_disassembler(input);
             break; 
         case INVALID_INSTR:         //Invalid
-            printf("Error: the first digit was not 0 or 1. Returning to main menu...\n");
+            printf("Error: the first digit was not 0 or 1\n");
             free(input);
-            main_menu();
+            return;
     }
 
     free(input);
@@ -140,7 +140,7 @@ char *comp_disassembler(char input[]) {
             case 0b000111: return "A-D";
             case 0b000000: return "D&A"; 
             case 0b010101: return "D|A"; 
-            default: printf("Error: not a computation for the Hack computer. Returning to main menu...\n"); main_menu();
+            default: printf("Error: not a computation for the Hack computer\n"); break;
         }
     } else {
         switch (code) {
@@ -154,7 +154,7 @@ char *comp_disassembler(char input[]) {
             case 0b000111: return "M-D";
             case 0b000000: return "D&M"; 
             case 0b010101: return "D|M"; 
-            default: printf("Error: not a computation for the Hack computer. Returning to main menu...\n"); main_menu();
+            default: printf("Error: not a computation for the Hack computer\n"); break;
         }
     }
 }
@@ -172,7 +172,7 @@ char *dest_disassembler(char input[]) {
         case 0b101: return "AM=";
         case 0b110: return "AD=";
         case 0b111: return "ADM=";
-        default: printf("Error: does not match any of the destination cases. Returning to main menu...\n"); main_menu();
+        default: printf("Error: does not match any of the destination cases\n"); break;
     }
 }
 
@@ -189,7 +189,7 @@ char *jump_disassembler(char input[]) {
         case 0b101: return ";JNE";
         case 0b110: return ";JLE";
         case 0b111: return ";JMP";
-        default: printf("Error: does not match any of the jump cases. Returning to main menu...\n"); main_menu();
+        default: printf("Error: does not match any of the jump cases\n"); break;
     }
 }
 
@@ -209,8 +209,8 @@ void assembler(void) {
             break;
         case INVALID_INSTR:
             free(input);
-            printf("Error: does not include the necessary symbols. Returning to main menu...\n");
-            main_menu();
+            printf("Error: does not include the necessary symbols\n");
+            return;
     }
 
     free(input);
@@ -235,8 +235,8 @@ void a_assembler (char input[]) {
         if (input[i] != '0' && input[i] != '1' && input[i] != '2' &&        //check the input does not include anyhting non-numerical
             input[i] != '3' && input[i] != '4' && input[i] != '5' && 
             input[i] != '6'  && input[i] != '7' && input[i] != '8' && input[i] != '9'){
-                printf("Error: input includes non-numeric characters. Returning to main menu...\n");
-                main_menu();
+                printf("Error: input includes non-numeric characters\n");
+                return;
             }
         value = value * 10 + (input[i] - '0');
     }
@@ -264,6 +264,7 @@ void c_assembler (char input[]) {
     /* assign pointers to the values returned in these functions*/
     const char *dest = dest_assembler(input);
     CompBits comp = comp_assembler(input);
+    if (comp.comp == "------") return; 
     const char *jump = jump_assembler(input);
 
     char binary[MAX_LEN];
@@ -293,9 +294,7 @@ const char *dest_assembler (char input[]) {
     if (strcmp(dest, "AM") == 0) return "101";
     if (strcmp(dest, "AD") == 0) return "110";
     if (strcmp(dest, "ADM") == 0) return "111"; 
-    
-    printf("Error: input did not match any destination cases. Returning to main menu...");
-    main_menu();
+
 }
 
 CompBits comp_assembler(char input[]) {
@@ -350,8 +349,9 @@ CompBits comp_assembler(char input[]) {
         if (strcmp(comp, "D&M") == 0) {result.comp = "000000"; return result;} 
     }
 
-    printf("Error: input did not match any computation cases. Returning to main menu...");
-    main_menu(); 
+    printf("Error: input did not match any computation cases\n");
+    result.comp = "------";
+    return result;   
 }
 
 const char *jump_assembler (char input[]) {
@@ -377,10 +377,7 @@ const char *jump_assembler (char input[]) {
     if (strcmp(jump, "JLT") == 0) return "100"; 
     if (strcmp(jump, "JNE") == 0) return "101"; 
     if (strcmp(jump, "JLE") == 0) return "110"; 
-    if (strcmp(jump, "JMP") == 0) return "111"; 
-
-    printf("Error: input did not match any jump cases. Returning to main menu...\n");
-    main_menu(); 
+    if (strcmp(jump, "JMP") == 0) return "111";  
 }
 
 void save_to_file (char result[]) {
@@ -400,8 +397,8 @@ void save_to_file (char result[]) {
 
         FILE *f = fopen(filename, "w");                 //open a file the users choice of name
         if (!f){
-            printf("Error: unable to open file. Returning to main menu...\n");
-            main_menu();
+            printf("Error: unable to open file\n");
+            return;
         }
 
         fprintf(f, "%s", result);               //print the result to this file

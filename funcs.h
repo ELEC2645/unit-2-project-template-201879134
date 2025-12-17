@@ -11,7 +11,6 @@ typedef struct {            //the data that the comp_assembler() has to return
     const char *comp; 
 } CompBits;
 
-void main_menu(void); /*from main.c goes back to start*/
 
 char *get_input(void);               /* get input with correct size buffer */
 void disassembler(void);                     /* checks the input and calls the next function */
