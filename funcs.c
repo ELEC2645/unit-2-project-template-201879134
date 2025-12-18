@@ -195,7 +195,7 @@ char *jump_disassembler(char input[]) {
 
 void assembler(void) {
     printf("\n>> Assembler\n\n");
-    printf("\nPlease enter a machine code instruction: ");
+    printf("Please enter a machine code instruction: ");
     char *input = get_input();
 
     Instruction assembler = get_instr_assembler(input);         //get the instruction type 
